@@ -1,0 +1,170 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="row">
+    <div class="col-12">
+        <!--Start Of Search-->
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+
+                    <div class="col-3 form-group">
+                        <label>Search</label>
+                        <input type="search" name="Search" id="Search" class="form-control" />
+                    </div>
+                    <div class="col-3 form-group">
+                        <label>Roles</label>
+                        <select class="form-control" name="Role" id="Role">
+                            <option disabled selected value="null">----</option>
+                            @foreach (var role in ViewBag.Roles)
+                            {
+                                <option value="@role">@role</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-6 d-flex justify-content-center align-items-center">
+                        <button class="btn btn-secondary mx-2" onclick="clearSearch()"> <i class="fa fa-times"></i> Clear</button>
+                        <button class="btn btn-primary searchBtn"> <i class="fa fa-search"></i>Search</button>
+                      
+                        <form asp-action="ExportToExcel" asp-controller="Home" method="post" id="ExportToExcelForm">
+                            <button type="button" class="btn btn-outline-success mx-2" id="ExportToExcelBtn">Export To Excel <i class="fa fa-file-excel"></i> </button>
+                        </form>
+
+                        <form asp-action="ExportToPdf" asp-controller="Home" method="get" id="ExportToPdfForm">
+                            <button type="button" class="btn btn-outline-danger mx-2" id="ExportToPdfBtn">Export To Pdf <i class="fa fa-file-pdf"></i> </button>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--End Of Search-->
+        <div id="ListBodyDiv">
+            <div class="card card-body py-4 my-4">
+                <div class="py-4 my-4 d-flex justify-content-center align-items-center">
+                    <div class="page-loader align-self-center">
+                        <span class="spinner-border text-primary py-2" role="status">
+                        </span>
+                        <div class="visually-hidden">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function LoadData(pageNo) {
+            var search = $("#Search").val();
+            var role = $("#Role").val();
+            var orderBy = $("#OrderBy").val();
+            var direction = $("#Direction").val();
+            $.ajax({
+                type: "POST",
+                url: "/Home/List",
+                data: {
+                    PageNo: pageNo,
+                    Search: search,
+                    Role: role,
+                    OrderBy: orderBy,
+                    Direction: direction
+                },
+                dataType: "html",
+                cache: false,
+                success: function (response) {
+                    $("#ListBodyDiv").html(response);
+
+                    var el = $(`span[data-name='${orderBy}'][data-dir='${direction}']`);
+                    el.addClass("arrow-selected");
+
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+            })
+        }
+
+        $(document).ready(function () {
+            LoadData(1);
+        })
+
+        $(".searchBtn").on("click", function () {
+            var pageNo = $("#PageNo").val();
+            LoadData(pageNo);
+        });
+        function clearSearch() {
+            $("#Search").val("");
+            $("#Role").val("null");
+
+            var pageNo = $("#PageNo").val();
+            LoadData(pageNo);
+        }
+
+        $(document).on("keypress", function (e) {
+            if (e.keyCode == 13) {
+                var pageNo = $("#PageNo").val();
+                LoadData(pageNo);
+            }
+        });
+
+        $(document).on("click", ".orderbyArrow", function () {
+
+            var name = $(this).attr("data-name");
+            var direction = $(this).attr("data-dir");
+
+            $("#Direction").val(direction);
+            $("#OrderBy").val(name);
+            var pageNo = $("#PageNo").val();
+            LoadData(pageNo);
+        });
+
+        $("#ExportToExcelBtn").on("click" , function(){
+            var search = $("#Search").val();
+            var role = $("#Role").val() == null ? "" : $("#Role").val();
+            var orderBy = $("#OrderBy").val();
+            var direction = $("#Direction").val();
+            var currentPage = $("#PageNo").val();
+
+            $("#ExportToExcelForm").prepend(`
+             <input type="hidden" name="Search" value="${search}" />
+             <input type="hidden" name="Role" value="${role}" />
+             <input type="hidden" name="OrderBy" value="${orderBy}" />
+             <input type="hidden" name="Direction" value="${direction}" />
+              <input type="hidden" name="PageNo" value="${currentPage}" />
+            
+            `);
+
+            $("#ExportToExcelForm").submit();
+        });
+
+        $("#ExportToPdfBtn").on("click", function () {
+            var search = $("#Search").val();
+            var role = $("#Role").val() == null ? "" : $("#Role").val();
+            var orderBy = $("#OrderBy").val();
+            var direction = $("#Direction").val();
+            var currentPage = $("#PageNo").val();
+
+            $("#ExportToPdfForm").prepend(`
+                     <input type="hidden" name="Search" value="${search}" />
+                     <input type="hidden" name="Role" value="${role}" />
+                     <input type="hidden" name="OrderBy" value="${orderBy}" />
+                     <input type="hidden" name="Direction" value="${direction}" />
+                      <input type="hidden" name="PageNo" value="${currentPage}" />
+                    `);
+
+            $("#ExportToPdfForm").submit();
+        });
+
+        function hideExportBtn() {
+            $("#ExportToPdfBtn").hide();
+            $("#ExportToExcelBtn").hide();
+        }
+
+        function showExportBtn() {
+            $("#ExportToPdfBtn").show();
+            $("#ExportToExcelBtn").show();
+        }
+    </script>
+}

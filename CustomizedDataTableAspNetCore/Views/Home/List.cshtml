@@ -1,0 +1,95 @@
+﻿@model UsersViewModel
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">DataTable with minimal features & hover style</h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                @if(Model._Items.Count > 0)
+                {
+                    <table id="example2" class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Name
+                                    <span class="arrows-container">
+                                        <span class="fa fa-caret-up orderbyArrow" data-name="FirstName" data-dir="asc"></span>
+                                        <span class="fa fa-caret-down orderbyArrow" data-name="FirstName" data-dir="desc"></span>
+                                    </span>
+                                </th>
+                                <th>Email
+                                    <span class="arrows-container">
+                                        <span class="fa fa-caret-up orderbyArrow" data-name="Email" data-dir="asc"></span>
+                                        <span class="fa fa-caret-down orderbyArrow" data-name="Email" data-dir="desc"></span>
+                                    </span>
+                                </th>
+                                <th>Phone
+                                    <span class="arrows-container">
+                                        <span class="fa fa-caret-up orderbyArrow" data-name="Phone" data-dir="asc"></span>
+                                        <span class="fa fa-caret-down orderbyArrow" data-name="Phone" data-dir="desc"></span>
+                                    </span>
+                                </th>
+                                <th>Address
+                                    <span class="arrows-container">
+                                        <span class="fa fa-caret-up orderbyArrow" data-name="Address" data-dir="asc"></span>
+                                        <span class="fa fa-caret-down orderbyArrow" data-name="Address" data-dir="desc"></span>
+                                    </span>
+                                </th>
+                                <th>Role
+                                    <span class="arrows-container">
+                                        <span class="fa fa-caret-up orderbyArrow" data-name="Role" data-dir="asc"></span>
+                                        <span class="fa fa-caret-down orderbyArrow" data-name="Role" data-dir="desc"></span>
+                                    </span>
+                                </th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @{
+                                int index = Model.StartFrom;
+                            }
+                            @foreach (var user in Model._Items)
+                            {
+                                <tr>
+                                    <td>@(++index)</td>
+                                    <td>@(user.FirstName + " " + user.LastName)</td>
+                                    <td>@user.Email</td>
+                                    <td>@user.Phone</td>
+                                    <td>@user.Address</td>
+                                    <td>@user.Role</td>
+                                    <td>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <button class="btn btn-info btn-sm mx-2">Edit</button>
+                                            <button class="btn btn-danger btn-sm">Delete</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                    <partial name="~/Views/Shared/_Pagination.cshtml"/>
+
+                    <script>showExportBtn();</script>
+                }
+                else
+                {
+                    <div class="alert alert-warning py-3">
+                        <h4>No Data Found.</h4>
+                    </div>
+                    <script>hideExportBtn();</script>
+                }
+
+            </div>
+            <!-- /.card-body -->
+        </div>
+    </div>
+</div>
+
+<input type="hidden" id="PageNo" value="@ViewBag.CurrentPage" />
+<input type="hidden" id="OrderBy" value="@ViewBag.OrdrerBy" />
+<input type="hidden" id="Direction" value="@ViewBag.Direction" />
